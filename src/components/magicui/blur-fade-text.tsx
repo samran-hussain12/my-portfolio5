@@ -8,8 +8,8 @@ interface BlurFadeTextProps {
   text: string;
   className?: string;
   variant?: {
-    hidden: { y: number };
-    visible: { y: number };
+    hidden: { y: number; opacity?: number; filter?: string };
+    visible: { y: number; opacity?: number; filter?: string };
   };
   duration?: number;
   characterDelay?: number;
@@ -17,6 +17,7 @@ interface BlurFadeTextProps {
   yOffset?: number;
   animateByCharacter?: boolean;
 }
+
 const BlurFadeText = ({
   text,
   className,
@@ -28,8 +29,9 @@ const BlurFadeText = ({
 }: BlurFadeTextProps) => {
   const defaultVariants: Variants = {
     hidden: { y: yOffset, opacity: 0, filter: "blur(8px)" },
-    visible: { y: -yOffset, opacity: 1, filter: "blur(0px)" },
+    visible: { y: 0, opacity: 1, filter: "blur(0px)" },
   };
+
   const combinedVariants = variant || defaultVariants;
   const characters = useMemo(() => Array.from(text), [text]);
 
@@ -45,12 +47,14 @@ const BlurFadeText = ({
               exit="hidden"
               variants={combinedVariants}
               transition={{
-                yoyo: Infinity,
                 delay: delay + i * characterDelay,
                 ease: "easeOut",
+                duration: 0.4,
+                repeat: 0, // no infinite loop unless you want it
+                repeatType: "loop",
               }}
               className={cn("inline-block", className)}
-              style={{ width: char.trim() === "" ? "0.2em" : "auto" }}
+              style={{ width: char.trim() === "" ? "0.25em" : "auto" }}
             >
               {char}
             </motion.span>
@@ -69,9 +73,11 @@ const BlurFadeText = ({
           exit="hidden"
           variants={combinedVariants}
           transition={{
-            yoyo: Infinity,
             delay,
             ease: "easeOut",
+            duration: 0.4,
+            repeat: 0,
+            repeatType: "loop",
           }}
           className={cn("inline-block", className)}
         >
